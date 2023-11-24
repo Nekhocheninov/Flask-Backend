@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROC Curve</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <canvas id="rocChart" width=220 height="100"></canvas>
+
+  <script>
+    async function fetchData() {
+      try {
+        await axios.post('http://localhost:5000/train', {});
+        const response = await axios.post('http://localhost:5000/predict', {});
+        
+        const fpr = response.data.fpr;
+        const tpr = response.data.tpr;
+
+        var ctx = document.getElementById('rocChart').getContext('2d');
+        var rocChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: fpr,
+            datasets: [{
+              label: 'ROC Curve',
+              borderColor: 'blue',
+              data: tpr,
+              fill: false
+            }],
+          },
+          options: {
+            scales: {
+              x: {
+                type: 'linear',
+                position: 'bottom',
+                title: {
+                  display: true,
+                  text: 'False Positive Rate'
+                }
+              },
+              y: {
+                type: 'linear',
+                position: 'left',
+                title: {
+                  display: true,
+                  text: 'True Positive Rate'
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+    fetchData();
+  </script>
+</body>
+</html>
